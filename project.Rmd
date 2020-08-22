@@ -1,0 +1,118 @@
+---
+title: "Regression Model Course Project"
+author: "A.U"
+date: "8/21/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<p style="font-family: timesNewRomen, serif; font-size:14pt">**1.Overview/Executive Summary**</p>
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+This report is based on the Coursera Regression Model Course under the given instructions. This regression analysis based on the dataset of cars which can be worked automobile industry. It is interested in exploring the relationship between the set of variables which are given in the dataset. Here, we used mtcars dataset which is located in the reshape2 R package. This project is mainly focused two questions.
+</p>
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+1.Is an automatic or manual transmission better for MPG?
+</p>
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+2.Quantify the MPG difference between automatic and manual transmission?
+</p>
+
+<p style="font-family: timesNewRomen, serif; font-size:14pt">**2. Data Preprocessing**</p>
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+The dataset consists of 32 observations and 11 variables.\
+mpg :- Miles Per US Gallon\
+cyl:- Number of Cylinders\
+disp :- Displacement(cubic inches)\
+hp :- Gross horsepower\
+drat :- Rear axle Ratio\
+wt:-weight(lb/1000)\
+qsec:- ¼ mile time\
+vs :- V/S\
+am :- Transmission(0=automatic, 1=manual)\
+gear:-Number of forward gears\
+carb:-Number of carburetors\
+</p>
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+head(mtcars)
+str(mtcars)
+```
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+library(tidyverse)
+library(corrplot)
+```
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+df <- as.tibble(mtcars)
+df
+```
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+It can be identified cyl,vs,am,gear and carb are qualitative variables but here this datasets those variables are  stored as integers. So that It is necessary to convert those variables in to factors.
+</p>
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+df$cyl <- as.factor(df$cyl)
+df$vs <- as.factor(df$vs)
+df$gear <- as.factor(df$gear)
+df$carb <- as.factor(df$carb)
+df$am <- factor(df$am,labels=c('Automatic','Manual'))
+str(df)
+```
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+M<-cor(mtcars)
+corrplot(M, method="number")
+```
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+According to this output, it can be say that cyl, disp, hp, drat, wt, vs, and am with strong linear relationship with mpg.
+</p>
+
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+model1 <- lm(mpg ~ factor(am), data=df)
+summary(model1)
+```
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+According to this output p value is 0.000285 and it is less than the level of significance value 0.05. So that we do not have enough evidence to reject the null hypothesis. It can be say am factor variable is significant. In order to further analysis, it must be performed analysis of variance of data.
+</p>
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+anova <- aov(mpg ~ ., data = df)
+summary(anova)
+```
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+According to the anova table, it can be only consider variables which are less than level of significance 0.05. Those variables are cyl, disp, wt and am.
+</p>
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+model2 <- lm(mpg ~ cyl + disp + wt + am, data = df)
+summary(model2)
+```
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+This output show that, R squatted value is 0.899. This means 83% variance can be explained by the model.
+</p>
+
+```{r,echo =TRUE,comment=NA, message=FALSE,eval=TRUE,warning=FALSE}
+ggplot(model2,aes(sample=.resid)) + stat_qq()+stat_qq_line()
+```
+
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+According to this figure shows that residuals are normally distributed and errors are uncorrelated.
+</p>
+<p style="font-family: timesNewRomen, serif; font-size:12pt;text-align: justify">
+Source of this report available at this link for verification. 
+<https://github.com/muhan1027/regressionModelReport>
+</p>
